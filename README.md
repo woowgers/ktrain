@@ -8,4 +8,4 @@
 
 ### TODO:
 * Refactor
-* Remove trashy directories and files handling
+* Remove not ideal directories and files handling
