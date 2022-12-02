@@ -10,3 +10,5 @@ main: $(SOURCES)
 
 local_install: ktrain
 	cp -t /usr/local/bin ktrain
+	mkdir ~/.config/ktrain
+	cp -t ~/.config/ktrain text/*.txt
