@@ -89,7 +89,7 @@ wint_t fgetwc_utf8(int fd)
     if ((n_reads = read(fd, multibyte+i, 1)) <= 0)
       return INCORRECT_MULTIBYTE;
 
-  if (mbtowc(&wch, multibyte, n_bytes) == -1)
+  if (mbtowc(&wch, (char*)multibyte, n_bytes) == -1)
     return INCORRECT_MULTIBYTE;
 
   return wch;
