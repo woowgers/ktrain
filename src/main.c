@@ -187,7 +187,7 @@ void prompt_exit_message()
          seconds,
          minutes;
   int n_writes;
-  const char * csi = "\033[31m",
+  const char * csi = "\033[32m",
              * message = "time spent: %02ld:%02ld | mistakes: %zu | press any key to exit";
 
   draw();
@@ -322,12 +322,30 @@ void get_filename_from_config_directory(char * filename)
 void process_args(int argc, char * argv[])
 {
   struct stat status;
+  char username[PATH_MAX];
+  uid_t uid;
+  struct passwd * passwd;
+  size_t offset;
 
   if (argc != 1 && argc != 2)
-    errx(EXIT_CODE_NO_ARGS, "Usage: ./main [<story text file>]");
+    errx(EXIT_CODE_NO_ARGS, "Usage: ./main [<file basename>]");
 
   if (argc == 2)
-    strncpy(_filename, argv[1], strlen(argv[1]));
+  {
+    uid = getuid();
+    if ((passwd = getpwuid(uid)) == NULL)
+      err(EXIT_CODE_NO_GETPWUID, "getpwuid");
+    offset = 0;
+    strncpy(_filename+offset, "/home/", 6);
+    offset += 6;
+    strncpy(_filename+offset, passwd->pw_name, 6);
+    offset += strlen(passwd->pw_name);
+    strncpy(_filename+offset, HOME_CONFIG_DIR_NAME, strlen(HOME_CONFIG_DIR_NAME));
+    offset += strlen(HOME_CONFIG_DIR_NAME);
+    strncpy(_filename+offset, argv[1], strlen(argv[1]));
+    offset += strlen(argv[1]);
+    strncpy(_filename+offset, ".txt", 4);
+  }
   else
     get_filename_from_config_directory(_filename);
 
