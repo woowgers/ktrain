@@ -6,4 +6,4 @@ CFLAGS := -g3
 all: main
 
 main: $(SOURCES)
-	$(CC) -o main $(SOURCES) $(CFLAGS)
+	$(CC) -o ktrain $(SOURCES) $(CFLAGS)
