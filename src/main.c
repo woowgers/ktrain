@@ -97,6 +97,11 @@ bool want_escape_this_character(wchar_t ch)
   return ch == '\t' || ch == '\n';
 }
 
+bool want_escape_this_trailing_character(wchar_t ch)
+{
+  return ch == ' ';
+}
+
 
 int get_original_termios()
 {
@@ -209,6 +214,7 @@ void buffers_update()
   {
     wbuffer_erase(_wbuf_write);
     wbuffer_fill_from_file_escaping(_wbuf_read, _ifd, want_escape_this_character);
+    wbuffer_remove_trailing(_wbuf_read, want_escape_this_trailing_character);
   }
 }
 

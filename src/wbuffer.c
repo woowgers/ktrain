@@ -109,6 +109,13 @@ size_t wbuffer_fill_from_file_escaping(struct wbuffer * self, int fd, bool (*esc
   return self->size = read_utf8_escaping(fd, self->data, self->capacity, escape);
 }
 
+size_t wbuffer_remove_trailing(struct wbuffer * self, bool (*escape)(wchar_t))
+{
+  while (!wbuffer_is_empty(self) && escape(*wbuffer_last(self)))
+    self->size--;
+  return self->size;
+}
+
 void wbuffer_erase(struct wbuffer * self)
 {
   self->size = 0;

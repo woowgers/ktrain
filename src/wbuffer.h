@@ -28,6 +28,7 @@ bool wbuffer_try_append(struct wbuffer *, wchar_t);
 bool wbuffer_try_pop(struct wbuffer *);
 size_t wbuffer_fill_from_file(struct wbuffer *, int);
 size_t wbuffer_fill_from_file_escaping(struct wbuffer *, int, bool (*)(wchar_t));
+size_t wbuffer_remove_trailing(struct wbuffer *, bool (*)(wchar_t));
 void wbuffer_erase(struct wbuffer *);
 
 
