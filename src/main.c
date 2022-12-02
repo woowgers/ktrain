@@ -227,7 +227,10 @@ void event_loop()
     else if (iswprint(wch))
     {
       if (!try_add_wchar(wch))
+      {
         _n_mistakes++;
+        bell();
+      }
     }
     else
       try_interpret_special(wch);

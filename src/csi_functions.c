@@ -100,6 +100,11 @@ void use_standard_screen_buffer()
   write(STDOUT_FILENO, buf, n_writes);
 }
 
+void bell()
+{
+  write(STDOUT_FILENO, "\a", 1);
+}
+
 
 bool prompt_message(const char * message, const char * csi_mod)
 {
