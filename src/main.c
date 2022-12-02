@@ -262,7 +262,7 @@ void process_args(int argc, char * argv[])
   struct stat status;
 
   if (argc != 2)
-    errx(EXIT_CODE_NO_ARGS, "Usage: ./main <story text file>\n");
+    errx(EXIT_CODE_NO_ARGS, "Usage: ./main <story text file>");
 
   _filename = argv[1];
 
