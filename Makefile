@@ -7,3 +7,6 @@ all: main
 
 main: $(SOURCES)
 	$(CC) -o ktrain $(SOURCES) $(CFLAGS)
+
+local_install: ktrain
+	cp -t /usr/local/bin ktrain
