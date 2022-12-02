@@ -18,6 +18,8 @@ void move_backward(size_t);
 void move_up(size_t);
 void move_down(size_t);
 void set_cursor(size_t, size_t);
+void use_alternate_screen_buffer();
+void use_standard_screen_buffer();
 
 bool prompt_message(const char *, const char *);
 bool prompt_message_bottom_center(const char * message, const char * csi_mod, const struct winsize * window_size);

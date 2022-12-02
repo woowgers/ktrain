@@ -84,6 +84,23 @@ void set_cursor(size_t y, size_t x)
   write(STDOUT_FILENO, buf, n_writes);
 }
 
+void use_alternate_screen_buffer()
+{
+  int n_writes;
+
+  n_writes = snprintf(buf, BUF_LAST, "\033[?1049h");
+  write(STDOUT_FILENO, buf, n_writes);
+}
+
+void use_standard_screen_buffer()
+{
+  int n_writes;
+
+  n_writes = snprintf(buf, BUF_LAST, "\033[?1049l");
+  write(STDOUT_FILENO, buf, n_writes);
+}
+
+
 bool prompt_message(const char * message, const char * csi_mod)
 {
   const size_t message_size = strlen(message);
