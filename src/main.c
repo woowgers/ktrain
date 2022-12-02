@@ -27,6 +27,8 @@ enum EXIT_CODE
   EXIT_CODE_NO_ARGS,
   EXIT_CODE_NO_FILE,
   EXIT_CODE_NO_ACCESS,
+  EXIT_CODE_NO_STAT,
+  EXIT_CODE_NO_REGULAR_FILE,
   EXIT_CODE_NO_OPEN,
   EXIT_CODE_TERMINATE
 };
@@ -114,7 +116,7 @@ void get_window_size(struct winsize * window_size)
   ioctl(STDOUT_FILENO, TIOCGWINSZ, window_size);
 }
 
-void create_buffers()
+void buffers_create()
 {
   _wbuf_read = wbuffer_create(_window_size.ws_col);
   _wbuf_write = wbuffer_create(_window_size.ws_col);
@@ -138,9 +140,9 @@ void wbuf_write_draw()
 void draw()
 {
   clear_screen();
-  set_cursor(1, 1);
+  set_cursor(_window_size.ws_row/2, 1);
   wbuf_read_draw();
-  set_cursor(1, 1);
+  set_cursor(_window_size.ws_row/2, 1);
   wbuf_write_draw();
 }
 
@@ -158,7 +160,7 @@ bool try_interpret_special(wchar_t ch)
 
   switch (ch)
   {
-    case ASCII_SPECIAL_BS:
+    case ASCII_SPECIAL_ETB:
       write(STDOUT_FILENO, message, message_size);
       wbuffer_try_pop(_wbuf_write);
       return true;
@@ -172,7 +174,7 @@ bool try_interpret_special(wchar_t ch)
   }
 }
 
-void prompt_time_and_mistakes()
+void prompt_exit_message()
 {
   time_t delta,
          seconds,
@@ -209,6 +211,7 @@ void event_loop()
 
   buffers_update();
   time(&_begin);
+
   do
   {
     draw();
@@ -224,7 +227,7 @@ void event_loop()
     buffers_update();
     if (buffers_are_equal_and_file_is_over())
     {
-      prompt_time_and_mistakes();
+      prompt_exit_message();
       finish_event_loop();
     }
   }
@@ -234,6 +237,19 @@ void event_loop()
 }
 
 
+void terminal_modify()
+{
+  get_original_termios();
+  set_modified_termios();
+  use_alternate_screen_buffer();
+}
+
+void terminal_restore()
+{
+  set_original_termios();
+  use_standard_screen_buffer();
+}
+
 void on_window_change(int signal_code)
 {
   get_window_size(&_window_size);
@@ -241,19 +257,20 @@ void on_window_change(int signal_code)
 
 void on_terminate(int signal_code)
 {
-  set_original_termios();
+  terminal_restore();
   close(_ifd);
   _exit(EXIT_CODE_TERMINATE);
 }
 
 void usage()
 {
-  const char * message = "Usage: ./main <story text file>\n";
-  write(STDERR_FILENO, message, strlen(message));
+  warn("Usage: ./main <story text file>\n");
 }
 
 void process_args(int argc, char * argv[])
 {
+  struct stat status;
+
   if (argc != 1 && argc != 2)
   {
     usage();
@@ -270,27 +287,36 @@ void process_args(int argc, char * argv[])
   if (access(_filename, R_OK) != 0)
     err(EXIT_CODE_NO_ACCESS, "access: %s", _filename);
 
+  if (stat(_filename, &status) != 0)
+    err(EXIT_CODE_NO_STAT, "stat: %s", _filename);
+
+  if ((status.st_mode & S_IFREG) == 0)
+    errx(EXIT_CODE_NO_REGULAR_FILE, "%s: Not a regular file", _filename);
+
   if ((_ifd = open(_filename, O_RDONLY)) == -1)
     err(EXIT_CODE_NO_OPEN, "open: %s", _filename);
 }
 
+void set_signal_handlers()
+{
+  signal(SIGWINCH, on_window_change);
+  signal(SIGTERM, on_terminate);
+}
 
 int main(int argc, char * argv[])
 {
   process_args(argc, argv);
-  signal(SIGWINCH, on_window_change);
-  signal(SIGTERM, on_terminate);
+  set_signal_handlers();
 
   get_window_size(&_window_size);
-  create_buffers();
+  buffers_create();
 
   setlocale(LC_ALL, "");
-  get_original_termios();
-  set_modified_termios();
+  terminal_modify();
 
   event_loop();
 
-  set_original_termios();
+  terminal_restore();
 
   close(_ifd);
 
