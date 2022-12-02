@@ -17,10 +17,6 @@
 #include "util.h"
 
 
-#define FILENAME_DEFAULT "story.txt"
-#define BUF_INFO_SIZE 128
-
-
 enum EXIT_CODE
 {
   EXIT_CODE_SUCCESS = 0,
@@ -76,7 +72,6 @@ static struct termios _tc_original,
 static struct winsize _window_size;
 static struct wbuffer * _wbuf_read,
                       * _wbuf_write;
-static char _buf_info[BUF_INFO_SIZE];
 static const char * _filename;
 static int _ifd;
 
@@ -271,15 +266,12 @@ void process_args(int argc, char * argv[])
 {
   struct stat status;
 
-  if (argc != 1 && argc != 2)
+  if (argc != 2)
   {
     usage();
     _exit(EXIT_CODE_NO_ARGS);
   }
-  if (argc == 2)
-    _filename = argv[1];
-  else
-    _filename = FILENAME_DEFAULT;
+  _filename = argv[1];
 
   if (access(_filename, F_OK) != 0)
     err(EXIT_CODE_NO_FILE, "access: %s", _filename);
