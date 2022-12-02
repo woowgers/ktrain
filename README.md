@@ -1,6 +1,6 @@
 ## A simple terminal keyboard trainer.
 ### Features:
 - [x] UTF8 support
-- [ ] restore window contents
+- [x] restore screen contents after quitting
 - [ ] adopt to changing window size
 - [ ] ...
