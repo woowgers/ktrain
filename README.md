@@ -1,7 +1,11 @@
 ## A simple terminal keyboard trainer.
 ### Features:
 - [x] UTF8 support
-- [x] restore screen contents after quitting
-- [ ] configuration directory with train samples
-- [ ] adopt to changing window size
+- [x] Restore screen contents after quitting
+- [x] Configuration directory with train samples
+- [ ] Adopt to changing window size
 - [ ] ...
+
+### TODO:
+* Refactor
+* Remove trashy directories and files handling
