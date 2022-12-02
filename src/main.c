@@ -7,14 +7,21 @@
 #include <locale.h>
 #include <wctype.h>
 #include <err.h>
+#include <dirent.h>
+#include <pwd.h>
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include "csi_functions.h"
 #include "wbuffer.h"
 #include "keep_event_loop.h"
 #include "util.h"
+
+
+#define HOME_CONFIG_DIR_NAME "/.config/ktrain/"
+#define N_ENTRIES_MAX 256
 
 
 enum EXIT_CODE
@@ -25,7 +32,11 @@ enum EXIT_CODE
   EXIT_CODE_NO_ACCESS,
   EXIT_CODE_NO_STAT,
   EXIT_CODE_NO_REGULAR_FILE,
+  EXIT_CODE_NO_DIRECTORY,
   EXIT_CODE_NO_OPEN,
+  EXIT_CODE_NO_OPENDIR,
+  EXIT_CODE_NO_GETPWUID,
+  EXIT_CODE_EMPTY_CONFIG_DIRECTORY,
   EXIT_CODE_TERMINATE
 };
 
@@ -70,9 +81,10 @@ enum ASCII_SPECIAL
 static struct termios _tc_original,
                       _tc_modified;
 static struct winsize _window_size;
+
 static struct wbuffer * _wbuf_read,
                       * _wbuf_write;
-static const char * _filename;
+static char _filename[PATH_MAX];
 static int _ifd;
 
 static size_t _n_mistakes = 0;
@@ -257,14 +269,67 @@ void on_terminate(int signal_code)
   _exit(EXIT_CODE_TERMINATE);
 }
 
+void get_filename_from_config_directory(char * filename)
+{
+  uid_t uid;
+  DIR * dir;
+  struct dirent * dirent;
+  struct dirent * dirents[N_ENTRIES_MAX];
+  char dirname[PATH_MAX] = "/home/";
+  struct passwd * passwd;
+  size_t length,
+         n_entries,
+         i_entry;
+  struct stat status;
+
+  uid = getuid();
+  if ((passwd = getpwuid(uid)) == NULL)
+    err(EXIT_CODE_NO_GETPWUID, "getpwduid: %d", uid);
+
+  strncpy(dirname+strlen(dirname), passwd->pw_name, strlen(passwd->pw_name));
+  strncpy(dirname+strlen(dirname), HOME_CONFIG_DIR_NAME, strlen(HOME_CONFIG_DIR_NAME));
+
+  if (stat(dirname, &status) != 0)
+    err(EXIT_CODE_NO_STAT, "stat: %s", dirname);
+
+  if ((status.st_mode & S_IFDIR) == 0)
+    errx(EXIT_CODE_NO_DIRECTORY, "%s: Not a directory", dirname);
+
+  if ((dir = opendir(dirname)) == NULL)
+    err(EXIT_CODE_NO_OPENDIR, "opendir: %s", dirname);
+
+  n_entries = 0;
+  while ((dirent = readdir(dir)) != NULL && n_entries < N_ENTRIES_MAX)
+  {
+    if (dirent->d_name[0] == '.')
+      ;
+    else
+      dirents[n_entries++] = dirent;
+  }
+
+  if (n_entries == 0)
+    errx(EXIT_CODE_EMPTY_CONFIG_DIRECTORY, "%s: No files found", dirname);
+
+  srand(time(NULL));
+  i_entry = rand() % n_entries;
+  dirent = dirents[i_entry];
+
+  closedir(dir);
+  strncpy(filename, dirname, strlen(dirname));
+  strncpy(filename+strlen(filename), dirent->d_name, 256);
+}
+
 void process_args(int argc, char * argv[])
 {
   struct stat status;
 
-  if (argc != 2)
-    errx(EXIT_CODE_NO_ARGS, "Usage: ./main <story text file>");
+  if (argc != 1 && argc != 2)
+    errx(EXIT_CODE_NO_ARGS, "Usage: ./main [<story text file>]");
 
-  _filename = argv[1];
+  if (argc == 2)
+    strncpy(_filename, argv[1], strlen(argv[1]));
+  else
+    get_filename_from_config_directory(_filename);
 
   if (access(_filename, F_OK) != 0)
     err(EXIT_CODE_NO_FILE, "access: %s", _filename);
