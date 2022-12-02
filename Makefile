@@ -9,6 +9,6 @@ main: $(SOURCES)
 	$(CC) -o ktrain $(SOURCES) $(CFLAGS)
 
 local_install: ktrain
-	cp -t /usr/local/bin ktrain
-	mkdir ~/.config/ktrain
-	cp -t ~/.config/ktrain text/*.txt
+	sudo cp -ft /usr/local/bin ktrain
+	sudo mkdir -p ~/.config/ktrain
+	sudo cp -nt ~/.config/ktrain text/*.txt
