@@ -257,20 +257,13 @@ void on_terminate(int signal_code)
   _exit(EXIT_CODE_TERMINATE);
 }
 
-void usage()
-{
-  warn("Usage: ./main <story text file>\n");
-}
-
 void process_args(int argc, char * argv[])
 {
   struct stat status;
 
   if (argc != 2)
-  {
-    usage();
-    _exit(EXIT_CODE_NO_ARGS);
-  }
+    errx(EXIT_CODE_NO_ARGS, "Usage: ./main <story text file>\n");
+
   _filename = argv[1];
 
   if (access(_filename, F_OK) != 0)
