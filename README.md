@@ -9,5 +9,11 @@
 - [ ] ...
 
 ### TODO:
+* Split words
+* Fix punctuation
+* Read by optimal blocks
 * Refactor
 * Remove messy file handling
+
+### Bugs:
+* Seems like error counter works wrong
