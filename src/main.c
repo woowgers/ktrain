@@ -193,14 +193,15 @@ void prompt_exit_message()
          minutes;
   int n_writes;
   const char * csi = "\033[32m",
-             * message = "time spent: %02ld:%02ld | mistakes: %zu | press any key to exit";
+             * message = "time spent: %02ld:%02ld | mistakes: %zu | press Escape to exit";
 
   draw();
   time(&_end);
   delta = _end - _begin;
   seconds = delta % 60;
   minutes = delta / 60;
-  prompt_bottom_center('\0', &_window_size, csi, message, minutes, seconds, _n_mistakes);
+  while (!prompt_bottom_center('\033', &_window_size, csi, message, minutes, seconds, _n_mistakes))
+    ;
 }
 
 bool buffers_are_equal_and_file_is_over()
