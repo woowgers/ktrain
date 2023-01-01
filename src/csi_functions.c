@@ -164,7 +164,7 @@ bool prompt_bottom_center(
   size_t n_rows,
          center_x;
   char buf[128],
-       answer;
+       answer[4];
   size_t n_bytes;
   va_list args;
 
@@ -180,8 +180,8 @@ bool prompt_bottom_center(
   write(STDOUT_FILENO, buf, n_bytes);
   write(STDOUT_FILENO, csi_clear, csi_clear_size);
 
-  if (read(STDIN_FILENO, &answer, 1) <= 0)
+  if (read(STDIN_FILENO, &answer[0], 4) != 1)
     return false;
 
-  return answer == right_answer;
+  return answer[0] == right_answer;
 }
