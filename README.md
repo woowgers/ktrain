@@ -17,7 +17,3 @@
 * Read by optimal blocks
 * Refactor
 * Remove messy file handling
-* Check if error counter works right
-
-### Bugs:
-* Seems like error counter works wrong
