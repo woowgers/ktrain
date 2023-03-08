@@ -1,5 +1,5 @@
-## A simple terminal keyboard trainer.
-### Features:
+# A simple terminal keyboard trainer.
+## Features:
 - [x] UTF8 english and russian support
 - [x] Restore screen contents after quitting
 - [x] Configuration directory with train samples
@@ -11,12 +11,21 @@
 - [ ] Let user choose which characters will and which will not occur
 - [ ] ...
 
-### Usage
+## Installation
 
-ktrain looks for first 256 files with 'txt' extension in /usr/share/ktrain directory.
+## Manual
+To install ktrain, `cd` to project diretory and run `make install` to install to `/usr/bin`
+or `make local_install` to install to `/usr/local/bin`.
+
+## AUR
+[ktrain](https://aur.archlinux.org/packages/ktrain) is available on Arch User Repository.
+
+## Usage
+
+ktrain looks for first 256 files with 'txt' extension in `/usr/share/ktrain` directory.
 By default, it chooses a random file. You can pass the basename of a file as an argument to choose one specific file.
 
-### TODO:
+## TODO:
 * Wrap words to next screen
 * Process deletions
 * Fix punctuation

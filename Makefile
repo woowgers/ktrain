@@ -1,5 +1,5 @@
 SOURCES := src/main.c src/keep_event_loop.c src/util.c src/wbuffer.c src/csi_functions.c
-CFLAGS := -g3 -O3
+CFLAGS := -g3 -O3 -nostdlib
 
 ktrain: $(SOURCES)
 	$(CC) -o ktrain $(SOURCES) $(CFLAGS)
