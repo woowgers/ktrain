@@ -11,8 +11,14 @@
 - [ ] Let user choose which characters will and which will not occur
 - [ ] ...
 
+### Usage
+
+ktrain looks for first 256 files with 'txt' extension in /usr/share/ktrain directory.
+By default, it chooses a random file. You can pass the basename of a file as an argument to choose one specific file.
+
 ### TODO:
-* Split words
+* Wrap words to next screen
+* Process deletions
 * Fix punctuation
 * Read by optimal blocks
 * Refactor

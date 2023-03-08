@@ -20,7 +20,7 @@
 #include "util.h"
 
 
-#define HOME_CONFIG_DIR_NAME "/.config/ktrain/"
+#define TEXTS_DIR_NAME "/usr/share/ktrain/"
 #define N_ENTRIES_MAX 256
 
 
@@ -279,34 +279,26 @@ void on_terminate(int signal_code)
   _exit(EXIT_CODE_TERMINATE);
 }
 
-void get_filename_from_config_directory(char * filename)
+void get_filename_from_texts_directory(char * filename)
 {
   uid_t uid;
   DIR * dir;
   struct dirent * dirent;
   struct dirent * dirents[N_ENTRIES_MAX];
-  char dirname[PATH_MAX] = "/home/";
   struct passwd * passwd;
   size_t length,
          n_entries,
          i_entry;
   struct stat status;
 
-  uid = getuid();
-  if ((passwd = getpwuid(uid)) == NULL)
-    err(EXIT_CODE_NO_GETPWUID, "getpwduid: %d", uid);
-
-  strncpy(dirname+strlen(dirname), passwd->pw_name, strlen(passwd->pw_name));
-  strncpy(dirname+strlen(dirname), HOME_CONFIG_DIR_NAME, strlen(HOME_CONFIG_DIR_NAME));
-
-  if (stat(dirname, &status) != 0)
-    err(EXIT_CODE_NO_STAT, "stat: %s", dirname);
+  if (stat(TEXTS_DIR_NAME, &status) != 0)
+    err(EXIT_CODE_NO_STAT, "stat: %s", TEXTS_DIR_NAME);
 
   if ((status.st_mode & S_IFDIR) == 0)
-    errx(EXIT_CODE_NO_DIRECTORY, "%s: Not a directory", dirname);
+    errx(EXIT_CODE_NO_DIRECTORY, "%s: Not a directory", TEXTS_DIR_NAME);
 
-  if ((dir = opendir(dirname)) == NULL)
-    err(EXIT_CODE_NO_OPENDIR, "opendir: %s", dirname);
+  if ((dir = opendir(TEXTS_DIR_NAME)) == NULL)
+    err(EXIT_CODE_NO_OPENDIR, "opendir: %s", TEXTS_DIR_NAME);
 
   n_entries = 0;
   while ((dirent = readdir(dir)) != NULL && n_entries < N_ENTRIES_MAX)
@@ -318,14 +310,14 @@ void get_filename_from_config_directory(char * filename)
   }
 
   if (n_entries == 0)
-    errx(EXIT_CODE_EMPTY_CONFIG_DIRECTORY, "%s: No files found", dirname);
+    errx(EXIT_CODE_EMPTY_CONFIG_DIRECTORY, "%s: No files found", TEXTS_DIR_NAME);
 
   srand(time(NULL));
   i_entry = rand() % n_entries;
   dirent = dirents[i_entry];
 
   closedir(dir);
-  strncpy(filename, dirname, strlen(dirname));
+  strncpy(filename, TEXTS_DIR_NAME, strlen(TEXTS_DIR_NAME));
   strncpy(filename+strlen(filename), dirent->d_name, 256);
 }
 
@@ -350,14 +342,14 @@ void process_args(int argc, char * argv[])
     offset += 6;
     strncpy(_filename+offset, passwd->pw_name, 6);
     offset += strlen(passwd->pw_name);
-    strncpy(_filename+offset, HOME_CONFIG_DIR_NAME, strlen(HOME_CONFIG_DIR_NAME));
-    offset += strlen(HOME_CONFIG_DIR_NAME);
+    strncpy(_filename+offset, TEXTS_DIR_NAME, strlen(TEXTS_DIR_NAME));
+    offset += strlen(TEXTS_DIR_NAME);
     strncpy(_filename+offset, argv[1], strlen(argv[1]));
     offset += strlen(argv[1]);
     strncpy(_filename+offset, ".txt", 4);
   }
   else
-    get_filename_from_config_directory(_filename);
+    get_filename_from_texts_directory(_filename);
 
   if (access(_filename, F_OK) != 0)
     err(EXIT_CODE_NO_FILE, "access: %s", _filename);
