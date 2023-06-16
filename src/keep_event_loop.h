@@ -5,11 +5,9 @@
 #include <stdbool.h>
 
 
-static bool _keep_event_loop = true;
-
-
 bool keep_event_loop();
-void finish_event_loop();
+void stop_event_loop();
+void continue_event_loop();
 
 
 #endif /* EVENT_LOOP */
