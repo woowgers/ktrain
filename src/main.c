@@ -8,7 +8,6 @@
 #include <wctype.h>
 #include <err.h>
 #include <dirent.h>
-#include <pwd.h>
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -20,7 +19,7 @@
 #include "util.h"
 
 
-#define TEXTS_DIR_NAME "/usr/share/ktrain/"
+#define TEXTS_DIR_NAME "/usr/share/ktrain/text/"
 #define N_ENTRIES_MAX 256
 
 
@@ -35,7 +34,6 @@ enum EXIT_CODE
   EXIT_CODE_NO_DIRECTORY,
   EXIT_CODE_NO_OPEN,
   EXIT_CODE_NO_OPENDIR,
-  EXIT_CODE_NO_GETPWUID,
   EXIT_CODE_EMPTY_CONFIG_DIRECTORY,
   EXIT_CODE_TERMINATE
 };
@@ -285,7 +283,6 @@ void get_filename_from_texts_directory(char * filename)
   DIR * dir;
   struct dirent * dirent;
   struct dirent * dirents[N_ENTRIES_MAX];
-  struct passwd * passwd;
   size_t length,
          n_entries,
          i_entry;
@@ -303,6 +300,8 @@ void get_filename_from_texts_directory(char * filename)
   n_entries = 0;
   while ((dirent = readdir(dir)) != NULL && n_entries < N_ENTRIES_MAX)
   {
+    write(STDOUT_FILENO, dirent->d_name, strlen(dirent->d_name));
+    write(STDOUT_FILENO, "\n", 1);
     if (dirent->d_name[0] == '.')
       ;
     else
@@ -324,9 +323,6 @@ void get_filename_from_texts_directory(char * filename)
 void process_args(int argc, char * argv[])
 {
   struct stat status;
-  char username[PATH_MAX];
-  uid_t uid;
-  struct passwd * passwd;
   size_t offset;
 
   if (argc != 1 && argc != 2)
@@ -334,14 +330,6 @@ void process_args(int argc, char * argv[])
 
   if (argc == 2)
   {
-    uid = getuid();
-    if ((passwd = getpwuid(uid)) == NULL)
-      err(EXIT_CODE_NO_GETPWUID, "getpwuid");
-    offset = 0;
-    strncpy(_filename+offset, "/home/", 6);
-    offset += 6;
-    strncpy(_filename+offset, passwd->pw_name, 6);
-    offset += strlen(passwd->pw_name);
     strncpy(_filename+offset, TEXTS_DIR_NAME, strlen(TEXTS_DIR_NAME));
     offset += strlen(TEXTS_DIR_NAME);
     strncpy(_filename+offset, argv[1], strlen(argv[1]));
